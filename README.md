@@ -1,3 +1,0 @@
-# OAuth Client Discovery
-
-TODO
