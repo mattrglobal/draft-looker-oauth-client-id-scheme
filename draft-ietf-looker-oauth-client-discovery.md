@@ -8,8 +8,8 @@ number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: OAuth Working Group
+# area: AREA
+# workgroup: OAuth Working Group
 keyword:
  - oauth
 
