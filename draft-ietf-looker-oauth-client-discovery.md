@@ -2,8 +2,8 @@
 title: "OAuth 2.0 Client Discovery"
 category: info
 
-docname: draft-ietf-looker-oauth-client-discovery-latest
-submissiontype: IETF  # also: "independent", "IAB", or "IRTF"
+docname: draft-ietf-looker-client-discovery-latest
+submissiontype: independent  # also: "independent", "IAB", or "IRTF"
 number:
 date:
 consensus: true
