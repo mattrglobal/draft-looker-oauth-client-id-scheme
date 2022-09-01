@@ -1,6 +1,6 @@
 # OAuth 2.0 Client Discovery
 
-This is the working area for the IETF Internet-Draft, "OAuth 2.0 Client Discovery".
+This is the working area for the IETF Individual Internet-Draft, "OAuth 2.0 Client Discovery".
 
 * [Editor's Copy](https://tplooker.github.io/draft-ietf-looker-oauth-client-discovery/#go.draft-ietf-looker-oauth-client-discovery.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-ietf-looker-oauth-client-discovery)
