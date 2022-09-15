@@ -46,11 +46,13 @@ informative:
 
 --- abstract
 
-This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for a prior registration step.
+This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for a prior registration step. Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server. This specificaiton also defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL.
 
 --- middle
 
 # Introduction
+
+In the current OAuth 2.0 authorisation model [RFC6749], predominantly, the OAuth 2.0 authorization server is expected to assign client ids to clients through an out of band registration process to access the server. This greatly reduces dynamic relationship between clients and authorization server. To address this issue, mechanisms such as dynamic client registration [RFC7591] was introduced. To dynamically register clients, a client need to make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successfull, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered metadata (including any applicable defaults)
 
 The metadata for a client is retrieved from a well-known location as a JSON [RFC8259] document, which declares its endpoint locations and client capabilities. This process is described in Section 3 (TODO).
 
@@ -58,9 +60,33 @@ TODO link to client metadata make it clear we aren't defining the metadata forma
 
 Define how in conventional OAuth2.0 registration of the client is required and this negates the need for registration.
 
-# Conventions and Definitions
+## Conventions and Terminology
 
 {::boilerplate bcp14-tagged}
+
+This specification uses the terms "access token", "refresh token", "authorization server", "resource server", "authorization endpoint", "authorization request", "authorization response", "token endpoint", "grant type", "access token request", "access token response", "client", "public client", and "confidential client" defined by The OAuth 2.0 Authorization Framework [RFC6749].
+
+The terms "request", "response", "header field", and "target URI" are imported from [RFC9110].
+
+# Client Discovery Process
+
+## Client Metadata
+
+## Authorizaiton Request
+
+## AS response / Error response 
+
+
+
+
+
+# Operational Consideration
+
+## Caching
+
+## Error codes / retry
+
+## Proposed Client Authentication methods (to avoid storing client credentials)
 
 # Security Considerations
 
