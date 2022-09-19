@@ -45,19 +45,23 @@ informative:
 
 --- abstract
 
-This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for a prior registration step. Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server. This specificaiton also defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL.
+This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for a prior registration step.
 
 --- middle
 
 # Introduction
 
-In the traditional OAuth 2.0 authorisation model {{!RFC6749}}, predominantly, the OAuth 2.0 authorization server is expected to assign client ids to clients through an out of band registration process to access the server. This greatly reduces dynamic relationship between clients and authorization server.
+In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, whether it be dynamically or out of band, during this registration process the authorization server records certain characteristics about the client known as metadata.
+
+The requirement for client registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration with affected authorization servers for this change to be recognized. The limitation of registration also constrains distributed deployments that feature many clients and authorization servers whereby requiring the client to register is costly.
 
 To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successfull, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
 
-To further enhance the decoupling between client and authorization server, this specification describes a model where a client can make it self discoverable to an authorization server in the same way an authorization server makes it self discoverable to a client today with openid discovery (https://openid.net/specs/openid-connect-discovery-1_0.html).
+<< TODO: describe here why dynamic client registration isn't great as a solution too >>
 
-The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in Section 3 (TODO)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets).
+Instead of requiring a registration process, this specification describes a model where a client can make itself discoverable to an authorization server in a similar way an authorization server makes itself discoverable to a client today with OAuth 2.0 Authorization Server Metadata {{!RFC8414}}.
+
+The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in Section 3 (TODO)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets). Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server. 
 
 This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata elements or formats are defined in this specification.
 
@@ -71,10 +75,9 @@ The terms "request", "response", "header field", and "target URI" are imported f
 
 # Client Discovery Flow
 
-The client discovery is performed by an authorization server once the authorisation server has the knowledge of client's metadata url.
+The client discovery is performed by an authorization server once the authorisation server has the knowledge of client's metadata url. One such way in which this url is obtained by the authorization server is via a authorization request as outlined in [Authorization request using Client Discovery](#authorization-request-using-client-discovery), where the client's metadata url is derived from the client_id.
 
-Authorization server makes a GET request to retrieve the metadata of a client from a .well-known location as a JSON document.
-The client declares its endpoint locations and client capabilities in the client metadata document.
+The flow begins by the authorization server making an HTTP GET request to retrieve the metadata of the client from their .well-known client metadata endpoint.
 
 ## Client Discovery Request
 
@@ -89,6 +92,9 @@ GET /.well-known/client-metadata HTTP/1.1
 
 ~~~ http
 200 OK
+{
+ TODO (will want an example doc here right)
+}
 ~~~
 
 ## Client Discovery Error Response
@@ -102,11 +108,11 @@ When an error condition occurs during discovery, the authorization server return
 In the following sections, we describe the mechanism through which a client communicates its metadata discovery url.
 
 
-## Authorization request using Client Discovery
+# Authorization request using Client Discovery
 
 For a client to advertise itself as a discoverable client, a new request parameter "client_discovery" is defined and used during an authorization request. This authorization request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the clients metadata, instead of trying to make sense of the value amongst existing registered clients.
 
-### Authorization Request
+## Authorization Request
 
 The following is a non-normative example request of a client making an authorization request to an authorization server with the "client_discovery" parameter:
 
@@ -114,7 +120,6 @@ The following is a non-normative example request of a client making an authoriza
  HTTP/1.1 302 Found
   Location: https://server.example.com/authorize?
     response_type=code
-    &scope=openid%20profile%20email
     &client_id=https%3A%2F%2Fclient.example.org
     &client_discovery=true
     &state=af0ifjsldkj
@@ -123,19 +128,21 @@ The following is a non-normative example request of a client making an authoriza
 
 << TODO - Define URL restrictions (like query parameters, fragments, special characters etc - probably reference spec) and encoding rules for the url value >>
 
-### Authorization Request - Client Response / Error codes
+<< TODO - define constraints around what client metadata a client should publish e.g a client should not publish a client_secret in their client metadata ;) >>
+
+## Authorization Request - Client Response / Error codes
 
 << TODO - Define response format and error codes >>
 
-## Token request using Client Discovery
+# Token request using Client Discovery
 
 << TODO Similar to authorization request, define token request example and restrictions >>
 
-### Token Request
+## Token Request
 
-### Token Request - Client Response / Error codes
+## Token Request - Client Response / Error codes
 
-## Client Metadata
+# Client Metadata
 
 << TODO Expand on client metadata formats. describe briefly about using sub-domain for multiple clients under the same domain >>
 
