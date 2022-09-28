@@ -55,7 +55,7 @@ In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server regist
 
 The requirement for client registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration with affected authorization servers for this change to be recognized. The limitation of registration also constrains distributed deployments that feature many clients and authorization servers whereby requiring the client to register is costly.
 
-To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successfull, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
+To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successful, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
 
 << TODO: describe here why dynamic client registration isn't great as a solution too >>
 
@@ -85,24 +85,68 @@ The following is a non-normative example request of an authorization server maki
 
 ~~~ http
 GET /.well-known/client-metadata HTTP/1.1
-  Host: client.example.org
+Host: client.example.org
 ~~~
 
 ## Client Discovery Response
 
 ~~~ http
-200 OK
-{
- TODO (will want an example doc here right)
-}
+HTTP/1.1 200 OK
+Content-Type: application/json
+    {
+      "redirect_uris": [
+        "https://client.example.org/callback",
+        "https://client.example.org/callback2"],
+      "client_name": "My Example Client",
+      "token_endpoint_auth_method": "client_secret_basic",
+      "logo_uri": "https://client.example.org/logo.png",
+      "jwks_uri": "https://client.example.org/my_public_keys.jwks",
+      "example_extension_parameter": "example_value"
+     }
 ~~~
 
 ## Client Discovery Error Response
 
 When an error condition occurs during discovery, the authorization server returns an HTTP 400 status code (unless otherwise specified) with content type "application/json" consisting of a JSON object {{!RFC7159}} describing the error in the response body.
 
+The JSON object describing the error contains two members:
+
+~~~ JSON
+error
+    Error code
+
+error_description
+    Additional text description of the error for debugging.
+~~~
+
+<< TBC Other members MAY also be used >>
+
+This specification defines the following error codes:
+
+~~~ JSON
+invalid_redirect_uri
+: The value of one or more redirect_uris is invalid.
+
+invalid_client_metadata
+: The value of one of the Client Metadata fields is invalid and the server has rejected this request.
+~~~
+
+Other error codes MAY also be used.
+
+The following is a non-normative example of error response:
+
 ~~~ http
-400 Bad Request
+
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+ "error": "invalid_redirect_uri",
+ "error_description": "One or more redirect_uri values are invalid"
+}
+
 ~~~
 
 In the following sections, we describe the mechanism through which a client communicates its metadata discovery url.
@@ -126,13 +170,93 @@ The following is a non-normative example request of a client making an authoriza
     &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
 ~~~
 
-<< TODO - Define URL restrictions (like query parameters, fragments, special characters etc - probably reference spec) and encoding rules for the url value >>
 
-<< TODO - define constraints around what client metadata a client should publish e.g a client should not publish a client_secret in their client metadata ;) >>
+The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL SHOULD use the https scheme which SHOULD also contain  host, and optionally, port number and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
+
+Since domain names are case insensitive, the host component of the URL MUST be compared case insensitively. Implementations SHOULD convert the host to lowercase when storing and using URLs.
+
+<< TODO - encoding rules for the url value >>
+
 
 ## Authorization Request - Client Response / Error codes
 
-<< TODO - Define response format and error codes >>
+After extracting the "client_id" URL from the authorization request, the authorization server will construct the client metadata url (.well-known/client-metadata path) and makes an HTTP GET request to retrieve the client metadata. This is similar to previously described [Client Discovery Flow](#client-discovery-flow).
+
+Following is a non-normative request to client metadata endpoint from the authorization server:
+
+~~~ http
+GET /.well-known/client-metadata HTTP/1.1
+Host: client.example.org
+~~~
+
+Following is a non-normative successful response from the client metadata endpoint to the authorization server:
+
+~~~ http
+HTTP/1.1 200 OK
+Content-Type: application/json
+    {
+      "redirect_uris": [
+        "https://client.example.org/callback",
+        "https://client.example.org/callback2"],
+      "client_name": "My Example Client",
+      "token_endpoint_auth_method": "client_secret_basic",
+      "logo_uri": "https://client.example.org/logo.png",
+      "jwks_uri": "https://client.example.org/my_public_keys.jwks",
+      "example_extension_parameter": "example_value"
+     }
+~~~
+
+Due to the public nature of self discoverable clients, all clients are considered public OAuth2 Clients. No client_secrets SHOULD be published in the metadata.
+Once the authorization server recieves the client metadata, it can perform custom checks to accept or reject the client request.
+
+Following is a non-normative check that a authorization server can perform to validate the clients:
+<< TBC -  If the URL scheme, host or port of the redirect_uri in the request do not match that of the client_id, then the authorization endpoint SHOULD verify that the requested redirect_uri matches one of the redirect URLs published by the client, and SHOULD block the request from proceeding if not. >>
+
+### Authorization Request - Error Response
+When an OAuth error condition occurs, the Authorization Endpoint returns an Error Response as defined in Section 3 of the OAuth 2.0 Bearer Token Usage {{!RFC6750}} specification
+
+When an error condition occurs during discovery, the authorization server returns an HTTP 400 status code (unless otherwise specified) with content type "application/json" consisting of a JSON object {{!RFC7159}} describing the error in the response body.
+
+The JSON object describing the error contains two members:
+
+~~~ JSON
+error
+    Error code
+
+error_description
+    Additional text description of the error for debugging.
+~~~
+
+<< TBC Other members MAY also be used >>
+
+This specification defines the following error codes:
+
+~~~ JSON
+invalid_redirect_uri
+: The value of one or more redirect_uris is invalid.
+
+invalid_client_metadata
+: The value of one of the Client Metadata fields is invalid and the server has rejected this request.
+~~~
+
+Other error codes MAY also be used.
+
+The following is a non-normative example of error response:
+
+~~~ http
+
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Cache-Control: no-store
+Pragma: no-cache
+
+{
+ "error": "invalid_redirect_uri",
+ "error_description": "One or more redirect_uri values are invalid"
+}
+
+~~~
+
 
 # Token request using Client Discovery
 
@@ -141,6 +265,8 @@ The following is a non-normative example request of a client making an authoriza
 ## Token Request
 
 ## Token Request - Client Response / Error codes
+
+
 
 # Client Metadata
 
