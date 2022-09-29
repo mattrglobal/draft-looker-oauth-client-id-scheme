@@ -57,7 +57,7 @@ The requirement for client registration greatly reduces how dynamic the relation
 
 To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successful, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
 
-<< TODO: describe here why dynamic client registration isn't great as a solution too >>
+Although dynamic client registration solves Just-In-Time (JIT) provisioning of client IDs, management of client IDs and secrets is an operational challenge which both authorization servers and clients face and is not completely addressed with the dynamic client registration specification. Short-lived public clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registration in the authorization server. To effeciently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when public dynamic client registration is enabled, malicious actors can target the authorization server to overwhelm its resources by registering multiple fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across mutiple authorization servers.
 
 Instead of requiring a registration process, this specification describes a model where a client can make itself discoverable to an authorization server in a similar way an authorization server makes itself discoverable to a client today with OAuth 2.0 Authorization Server Metadata {{!RFC8414}}.
 
@@ -161,13 +161,12 @@ For a client to advertise itself as a discoverable client, a new request paramet
 The following is a non-normative example request of a client making an authorization request to an authorization server with the "client_discovery" parameter:
 
 ~~~ http
- HTTP/1.1 302 Found
-  Location: https://server.example.com/authorize?
-    response_type=code
+GET /authorize?response_type=code
     &client_id=https%3A%2F%2Fclient.example.org
     &client_discovery=true
     &state=af0ifjsldkj
     &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+HOST: server.example.com
 ~~~
 
 
@@ -257,16 +256,39 @@ Pragma: no-cache
 
 ~~~
 
+<< TBC - Should we add descriptions of each parameter in the request or just the new ones  ?? >>
 
 # Token request using Client Discovery
 
-<< TODO Similar to authorization request, define token request example and restrictions >>
+When a public client uses PKCE {{!RFC7636}} to talk to Token endpoint, the authorization server MAY require to perform additional validations before returning the access token to the client. The following sections discuss the steps recommended to be performed by the authorization server. 
 
 ## Token Request
 
-## Token Request - Client Response / Error codes
+The following is a non-normative example request of a client making an token request using PKCE to an authorization server with the "client_discovery" parameter:
 
+~~~ http
+POST /token
+Host: server.example.com
+Content-type: application/x-www-form-urlencoded
+Accept: application/json
 
+grant_type=authorization_code
+&code=xxxxxxxx
+&client_id=https://client.example.com/
+&redirect_uri=https://client.example.com/redirect
+&code_verifier=a6128783714cfda1d388e2e98b6ae8221ac31aca31959e59512c59f5
+&client_discovery=true
+~~~
+
+## Token Request - Authorization Server Checks for client discovery
+
+<< TBC - Whether to describe the checks that an authorisation server should do validate the client. State / caching managed at auth server or should the auth server call the client discovery ?? >>
+
+<< The token endpoint needs to verify that the authorization code is valid, and that it was issued for the matching client_id and redirect_uri, contains at least one scope, and checks that the provided code_verifier hashes to the same value as given in the code_challenge in the original authorization request. If the authorization code was issued with no scope, the token endpoint MUST NOT issue an access token, as empty scopes are invalid per Section 3.3 of OAuth 2.0 {{!RFC6749}} >>
+
+### Token Request - Authorization Server Error codes
+
+<< TBC - Whether the error codes are from Auth Server ?? >>
 
 # Client Metadata
 
