@@ -57,7 +57,7 @@ The requirement for client registration greatly reduces how dynamic the relation
 
 To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successful, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
 
-Although dynamic client registration enables Just-In-Time (JIT) provisioning of client IDs, management of client IDs and secrets is an operational challenge which both authorization servers and clients face and is not completely addressed with the dynamic client registration specification. Short-lived public clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registration in the authorization server. To effeciently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when public dynamic client registration is enabled, malicious actors can target the authorization server to overwhelm its resources by registering multiple fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across mutiple authorization servers.
+Although dynamic client registration enables Just-In-Time (JIT) provisioning of client IDs, management of client IDs and secrets is an operational challenge experienced by both clients and server that is not addressed with the dynamic client registration specification. Short-lived clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registration in the authorization server. To effeciently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when dynamic client registration is enabled for public clients, malicious actors can target the authorization server to overwhelm its resources by registering massive number of fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across multiple authorization servers.
 
 Instead of requiring a registration process, this specification describes a model where a client can make itself discoverable to an authorization server in a similar way an authorization server makes itself discoverable to a client today with OAuth 2.0 Authorization Server Metadata {{!RFC8414}}.
 
@@ -75,20 +75,28 @@ The terms "request", "response", "header field", and "target URI" are imported f
 
 # Client Discovery Flow
 
-The client discovery is performed by an authorization server once the authorisation server has the knowledge of client's metadata url. One such way in which this url is obtained by the authorization server is via a authorization request as outlined in [Authorization request using Client Discovery](#authorization-request-using-client-discovery), where the client's metadata url is derived from the client_id.
+The client discovery is performed by an authorization server once the authorisation server has the knowledge of client's url. One such way in which this url is obtained by the authorization server is via an authorization request as outlined in [Authorization request using Client Discovery](#authorization-request-using-client-discovery), where the client's metadata url is derived from the client_id. The client_id is expected to be a URL and the path derived from the URL must point to client's metadata.
 
-The flow begins by the authorization server making an HTTP GET request to retrieve the metadata of the client from their .well-known client metadata endpoint.
+Clients supporting discovery MUST make a JSON document available at the path formed by concatenating the string /.well-known/client-configuration to the client's url supplied as client_id. The syntax and semantics of .well-known are defined in RFC 5785 {{!RFC5785}} and apply to the client_id when it contains no path component. Client configuration MUST point to a JSON document compliant with OAuth 2.0 dynamic client registration protocol {{!RFC7591}} and MUST be returned using the application/json content type.
 
 ## Client Discovery Request
+
+The flow begins by the authorization server making an HTTP GET request to retrieve the metadata of the client from the previously specified path (.well-known/client-configuration).
 
 The following is a non-normative example request of an authorization server making a get request to client's .well-known endpoint to retrieve client metadata:
 
 ~~~ http
-GET /.well-known/client-metadata HTTP/1.1
+GET /.well-known/client-configuration HTTP/1.1
 Host: client.example.org
 ~~~
 
 ## Client Discovery Response
+
+The response is a set of client's metadata configuration as a JSON object. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the application/json content type that contains a set of client's metadata configuration as defined in OAuth 2.0 dynamic client registration protocol {{!RFC7591}}.
+
+<< TBC - Claims that return multiple values are represented as JSON arrays. Claims with zero elements MUST be omitted from the response >>
+
+The following is a non-normative example response:
 
 ~~~ http
 HTTP/1.1 200 OK
@@ -105,56 +113,13 @@ Content-Type: application/json
      }
 ~~~
 
-## Client Discovery Error Response
-
-When an error condition occurs during discovery, the authorization server returns an HTTP 400 status code (unless otherwise specified) with content type "application/json" consisting of a JSON object {{!RFC7159}} describing the error in the response body.
-
-The JSON object describing the error contains two members:
-
-~~~ JSON
-error
-    Error code
-
-error_description
-    Additional text description of the error for debugging.
-~~~
-
-<< TBC Other members MAY also be used >>
-
-This specification defines the following error codes:
-
-~~~ JSON
-invalid_redirect_uri
-: The value of one or more redirect_uris is invalid.
-
-invalid_client_metadata
-: The value of one of the Client Metadata fields is invalid and the server has rejected this request.
-~~~
-
-Other error codes MAY also be used.
-
-The following is a non-normative example of error response:
-
-~~~ http
-
-HTTP/1.1 400 Bad Request
-Content-Type: application/json
-Cache-Control: no-store
-Pragma: no-cache
-
-{
- "error": "invalid_redirect_uri",
- "error_description": "One or more redirect_uri values are invalid"
-}
-
-~~~
+An error response uses the applicable HTTP status code value.
 
 In the following sections, we describe the mechanism through which a client communicates its metadata discovery url.
 
+# Authorization Request Using Client Discovery
 
-# Authorization request using Client Discovery
-
-For a client to advertise itself as a discoverable client, a new request parameter "client_discovery" is defined and used during an authorization request. This authorization request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the clients metadata, instead of trying to make sense of the value amongst existing registered clients.
+For a client to advertise itself as a discoverable client, a new request parameter "client_discovery" is defined and used during an authorization request. This authorization request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the client's metadata, instead of trying to make sense of the value amongst existing registered clients.
 
 ## Authorization Request
 
@@ -169,102 +134,33 @@ GET /authorize?response_type=code
 HOST: server.example.com
 ~~~
 
+The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
 
-The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL SHOULD use the https scheme which SHOULD also contain  host, and optionally, port number and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
+After extracting the "client_id" URL from the authorization request, the authorization server MAY execute the [Client Discovery Flow](#client-discovery-flow) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the authorization request.
 
-Since domain names are case insensitive, the host component of the URL MUST be compared case insensitively. Implementations SHOULD convert the host to lowercase when storing and using URLs.
+Following is a non-normative check that an authorization server can perform to validate the clients:
 
-<< TODO - encoding rules for the url value >>
+:   If the URL scheme, host or port of the redirect_uri in the request do not match that of the client_id, then the authorization endpoint SHOULD verify that the requested redirect_uri matches one of the redirect URLs published by the client, and SHOULD block the request from proceeding if not.
+:   Since domain names are case insensitive, the host component of the URL MUST be compared case insensitively. Implementations SHOULD convert the host to lowercase when storing and using URLs.
 
-
-## Authorization Request - Client Response / Error codes
-
-After extracting the "client_id" URL from the authorization request, the authorization server will construct the client metadata url (.well-known/client-metadata path) and makes an HTTP GET request to retrieve the client metadata. This is similar to previously described [Client Discovery Flow](#client-discovery-flow).
-
-Following is a non-normative request to client metadata endpoint from the authorization server:
+Once the authorization request is successfully validated and processed, the authorization server issues an authorization code and delivers it to the client by
+adding it as query parmeter (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1">as described in the Section 4.1.2 of [RFC6749]</eref>) to the redirection URI using the "application/x-www-form-urlencoded" format.
 
 ~~~ http
-GET /.well-known/client-metadata HTTP/1.1
-Host: client.example.org
+HTTP/1.1 302 Found
+Location: https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA
+&state=xyz
 ~~~
 
-Following is a non-normative successful response from the client metadata endpoint to the authorization server:
+In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-4.1.2.1">as described in the Section 4.1.2.1 of [RFC6749]</eref>).
 
-~~~ http
-HTTP/1.1 200 OK
-Content-Type: application/json
-    {
-      "redirect_uris": [
-        "https://client.example.org/callback",
-        "https://client.example.org/callback2"],
-      "client_name": "My Example Client",
-      "token_endpoint_auth_method": "client_secret_basic",
-      "logo_uri": "https://client.example.org/logo.png",
-      "jwks_uri": "https://client.example.org/my_public_keys.jwks",
-      "example_extension_parameter": "example_value"
-     }
-~~~
+# Token Request Using Client Discovery
 
-Due to the public nature of self discoverable clients, all clients are considered public OAuth2 Clients. No client_secrets SHOULD be published in the metadata.
-Once the authorization server recieves the client metadata, it can perform custom checks to accept or reject the client request.
-
-Following is a non-normative check that a authorization server can perform to validate the clients:
-<< TBC -  If the URL scheme, host or port of the redirect_uri in the request do not match that of the client_id, then the authorization endpoint SHOULD verify that the requested redirect_uri matches one of the redirect URLs published by the client, and SHOULD block the request from proceeding if not. >>
-
-### Authorization Request - Error Response
-When an OAuth error condition occurs, the Authorization Endpoint returns an Error Response as defined in Section 3 of the OAuth 2.0 Bearer Token Usage {{!RFC6750}} specification
-
-When an error condition occurs during discovery, the authorization server returns an HTTP 400 status code (unless otherwise specified) with content type "application/json" consisting of a JSON object {{!RFC7159}} describing the error in the response body.
-
-The JSON object describing the error contains two members:
-
-~~~ JSON
-error
-    Error code
-
-error_description
-    Additional text description of the error for debugging.
-~~~
-
-<< TBC Other members MAY also be used >>
-
-This specification defines the following error codes:
-
-~~~ JSON
-invalid_redirect_uri
-: The value of one or more redirect_uris is invalid.
-
-invalid_client_metadata
-: The value of one of the Client Metadata fields is invalid and the server has rejected this request.
-~~~
-
-Other error codes MAY also be used.
-
-The following is a non-normative example of error response:
-
-~~~ http
-
-HTTP/1.1 400 Bad Request
-Content-Type: application/json
-Cache-Control: no-store
-Pragma: no-cache
-
-{
- "error": "invalid_redirect_uri",
- "error_description": "One or more redirect_uri values are invalid"
-}
-
-~~~
-
-<< TBC - Should we add descriptions of each parameter in the request or just the new ones  ?? >>
-
-# Token request using Client Discovery
-
-When a public client uses PKCE {{!RFC7636}} to talk to Token endpoint, the authorization server MAY require to perform additional validations before returning the access token to the client. The following sections discuss the steps recommended to be performed by the authorization server.
+If an authorization server requires a client id during token request, the token request must include the new request parameter "client_discovery" to advertise itself as a discoverable client. This token request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the client's metadata, instead of trying to make sense of the value amongst existing registered clients.
 
 ## Token Request
 
-The following is a non-normative example request of a client making an token request using PKCE to an authorization server with the "client_discovery" parameter:
+The following is a non-normative example request of a client making an token request using "client_discovery" parameter:
 
 ~~~ http
 POST /token
@@ -280,15 +176,11 @@ grant_type=authorization_code
 &client_discovery=true
 ~~~
 
-## Token Request - Authorization Server Checks for client discovery
+After extracting the "client_id" URL from the token request, the authorization server MAY execute the [Client Discovery Flow](#client-discovery-flow) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the token request.
 
-<< TBC - Whether to describe the checks that an authorisation server should do validate the client. State / caching managed at auth server or should the auth server call the client discovery ?? >>
+Once the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
 
-<< The token endpoint needs to verify that the authorization code is valid, and that it was issued for the matching client_id and redirect_uri, contains at least one scope, and checks that the provided code_verifier hashes to the same value as given in the code_challenge in the original authorization request. If the authorization code was issued with no scope, the token endpoint MUST NOT issue an access token, as empty scopes are invalid per Section 3.3 of OAuth 2.0 {{!RFC6749}} >>
-
-### Token Request - Authorization Server Error codes
-
-<< TBC - Whether the error codes are from Auth Server ?? >>
+In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</eref>).
 
 # Client Metadata
 
