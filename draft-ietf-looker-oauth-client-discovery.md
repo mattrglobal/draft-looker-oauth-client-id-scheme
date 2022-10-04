@@ -81,12 +81,14 @@ The client's metadata MUST include the client_uri element as defined in section 
 
 # Obtaining Client Metadata
 
-Client supporting metadata MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by concatenating a well-known URI string into client_uri.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA "Well-Known URIs" registry (IANA.well-known).
+Client supporting metadata MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by concatenating a well-known URI string to the client_uri value.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA "Well-Known URIs" registry (IANA.well-known).
 
 Different clients utilizing OAuth 2.0 in application-specific ways may define and register different well-known URI suffixes used to publish client metadata as used by those applications.  For instance, if the example client uses in an example-specific way, and there are example-specific metadata values that it needs to publish,then it might register and use the "example-configuration" URI suffix and publish the metadata document at the path formed by concatenating "/.well-known/example-configuration" to the client_uri. Alternatively, many such clients will use the default well-known URI string "/.well-known/oauth-client", which is the right choice for general-purpose OAuth 2.0 applications.
 
-An OAuth 2.0 client using this specification MUST specify what well-known URI suffix it will use for this purpose. The same client MAY choose to publish its metadata at multiple well-known locations derived from its client_uri , for example, publishing metadata at both "/.well-known/example-configuration" and
-"/.well-known/oauth-client". Some OAuth 2.0 applications will choose to use the well-known URI suffix "openid-federation", as described in [Compatibility Notes](#compatibility-notes) .
+An OAuth 2.0 client using this specification MUST specify what well-known URI suffix it will use for this purpose. The same client MAY choose to publish its metadata at multiple well-known locations derived from its client_uri, for example, publishing metadata at both "/.well-known/example-configuration" and
+"/.well-known/oauth-client".
+
+Some OAuth 2.0 applications will choose to use the well-known URI suffix "openid-federation", as described in [Compatibility Notes](#compatibility-notes).
 
 ## Client Metadata Request
 
@@ -108,9 +110,9 @@ Using path components enables supporting multiple clients per host. This is requ
 
 ## Client Metadata Response
 
-The response is a set of claims about the client's configuration, including all necessary metadata and public key location information. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the "application/json" content type that contains a set of claims as its members that are a subset of the metadata values defined in OAuth 2.0 dynamic client registration protocol {{!RFC7591}}. Other claims MAY also be returned.
+The response is a set of elements describing client's configuration, including all necessary metadata and public key location information. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the "application/json" content type that contains a set of elements as defined in [Client Metadata](#client-metadata). Other elements MAY also be returned.
 
-<< TBC - Remove this ?? Claims that return multiple values are represented as JSON arrays >>. Claims with zero elements MUST be omitted from the response.
+Elements that return multiple values are represented as JSON arrays. Elements with no values MUST be omitted from the response.
 
 An error response uses the applicable HTTP status code value.
 
@@ -133,7 +135,7 @@ Content-Type: application/json
 
 ## Client Metadata Validation
 
-The  << TBC - "client_uri" ?? >> value returned MUST be identical to the "Client ID" value into which the well-known URI string was concatenated to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
+The  client_uri value returned in the client metadata response MUST be identical to the client_uri value that was used in conjunction with the chosen well-known URI string was concatenated to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
 
 # String Operations
 
@@ -157,7 +159,7 @@ In the following sections, we describe the mechanism through which a client comm
 
 # Authorization Request Using Client Discovery
 
-For a client to advertise itself as a discoverable client, a new request parameter "client_discovery" is defined and used during an authorization request. This authorization request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the client's metadata, instead of trying to make sense of the value amongst existing registered clients.
+A client can indicate to an authorisation server that it has discoverable metadata in an authorization request via the "client_discovery" request parameter. Presence of this parameter in an authorization request with a value of "true" indicates to the authorization server that the "client_id" value of the authorization request is the "client_uri" for the client and if the authorization server does not already have the metadata for the supplied "client_id" it can retrieve the clients metadata by following the procedure outlined in [Client Metadata Section](#client-metadata).
 
 ## Authorization Request
 
