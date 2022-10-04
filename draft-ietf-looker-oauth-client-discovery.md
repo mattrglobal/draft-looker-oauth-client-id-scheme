@@ -57,11 +57,11 @@ The requirement for client registration greatly reduces how dynamic the relation
 
 To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successful, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
 
-Although dynamic client registration enables Just-In-Time (JIT) provisioning of client IDs, management of client IDs and secrets is an operational challenge experienced by both clients and server that is not addressed with the dynamic client registration specification. Short-lived clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registration in the authorization server. To effeciently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when dynamic client registration is enabled for public clients, malicious actors can target the authorization server to overwhelm its resources by registering massive number of fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across multiple authorization servers.
+Although dynamic client registration enables Just-In-Time (JIT) client registration, management of client IDs and secrets is an operational challenge experienced by both clients and server that is not addressed with the dynamic client registration specification. Short-lived clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registrations. To efficiently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when dynamic client registration is enabled for public clients, malicious actors can target the authorization server to overwhelm its resources by registering massive number of fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across multiple authorization servers.
 
 Instead of requiring a registration process, this specification describes a model where a client can make itself discoverable to an authorization server in a similar way an authorization server makes itself discoverable to a client today with OAuth 2.0 Authorization Server Metadata {{!RFC8414}}.
 
-The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Client Discovery Flow](#client-discovery-flow)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets). Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server.
+The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Obtaining Client Metadata](#obtaining-client-metadata)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets). Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server.
 
 This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata elements or formats are defined in this specification.
 
@@ -73,28 +73,46 @@ This specification uses the terms "access token", "refresh token", "authorizatio
 
 The terms "request", "response", "header field", and "target URI" are imported from {{!RFC9110}}.
 
-# Client Discovery Flow
+# Client Metadata
 
-The client discovery is performed by an authorization server once the authorisation server has the knowledge of client's url. One such way in which this url is obtained by the authorization server is via an authorization request as outlined in [Authorization request using Client Discovery](#authorization-request-using-client-discovery), where the client's metadata url is derived from the client_id. The client_id is expected to be a URL and the path derived from the URL must point to client's metadata.
+Clients can have metadata described in their configuration. Examples of existing registered metadata elements that a client can make use of can be found at the <eref target= "https://www.rfc-editor.org/rfc/rfc7591.html#section-4.1"> OAuth 2.0 dynamic client registration metadata IANA registry [RFC 7591]</eref>.
 
-Clients supporting discovery MUST make a JSON document available at the path formed by concatenating the string /.well-known/client-configuration to the client's url supplied as client_id. The syntax and semantics of .well-known are defined in RFC 5785 {{!RFC5785}} and apply to the client_id when it contains no path component. Client configuration MUST point to a JSON document compliant with OAuth 2.0 dynamic client registration protocol {{!RFC7591}} and MUST be returned using the application/json content type.
+The client's metadata MUST include the client_uri element as defined in section 2 of RFC7591 {{!RFC7591}}. The value of this element MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 (::1).
 
-## Client Discovery Request
+# Obtaining Client Metadata
 
-The flow begins by the authorization server making an HTTP GET request to retrieve the metadata of the client from the previously specified path (.well-known/client-configuration).
+Client supporting metadata MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by concatenating a well-known URI string into client_uri.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA "Well-Known URIs" registry (IANA.well-known).
 
-The following is a non-normative example request of an authorization server making a get request to client's .well-known endpoint to retrieve client metadata:
+Different clients utilizing OAuth 2.0 in application-specific ways may define and register different well-known URI suffixes used to publish client metadata as used by those applications.  For instance, if the example client uses in an example-specific way, and there are example-specific metadata values that it needs to publish,then it might register and use the "example-configuration" URI suffix and publish the metadata document at the path formed by concatenating "/.well-known/example-configuration" to the client_uri. Alternatively, many such clients will use the default well-known URI string "/.well-known/oauth-client", which is the right choice for general-purpose OAuth 2.0 applications.
+
+An OAuth 2.0 client using this specification MUST specify what well-known URI suffix it will use for this purpose. The same client MAY choose to publish its metadata at multiple well-known locations derived from its client_uri , for example, publishing metadata at both "/.well-known/example-configuration" and
+"/.well-known/oauth-client". Some OAuth 2.0 applications will choose to use the well-known URI suffix "openid-federation", as described in [Compatibility Notes](#compatibility-notes) .
+
+## Client Metadata Request
+
+A client metadata document MUST be queried using an HTTP "GET" request at the previously specified path. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com" and the well-known URI suffix is "oauth-client" to obtain the metadata, since the client_uri contains no path component:
 
 ~~~ http
-GET /.well-known/client-configuration HTTP/1.1
-Host: client.example.org
+GET /.well-known/oauth-client HTTP/1.1
+Host: client.example.com
 ~~~
 
-## Client Discovery Response
+If the client_uri value contains a path component, "/.well-known/"  and the well-known URI suffix is concatenated with client_uri and the contained path. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com/client1" and the well-known URI suffix is "oauth-client" to obtain the metadata, since the client_uri contains a path component:
 
-The response is a set of client's metadata configuration as a JSON object. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the application/json content type that contains a set of client's metadata configuration as defined in OAuth 2.0 dynamic client registration protocol {{!RFC7591}}.
+~~~ http
+GET /client1/.well-known/oauth-client HTTP/1.1
+Host: client.example.com
+~~~
 
-<< TBC - Claims that return multiple values are represented as JSON arrays. Claims with zero elements MUST be omitted from the response >>
+Using path components enables supporting multiple clients per host. This is required in some complex client hosting configurations. This use of ".well-known" is for supporting multiple clients per host; unlike its use in RFC 5785 {{!RFC5785}}, it does not provide general information about the host.
+
+## Client Metadata Response
+
+The response is a set of claims about the client's configuration, including all necessary metadata and public key location information. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the "application/json" content type that contains a set of claims as its members that are a subset of the metadata values defined in OAuth 2.0 dynamic client registration protocol {{!RFC7591}}. Other claims MAY also be returned.
+
+<< TBC - Remove this ?? Claims that return multiple values are represented as JSON arrays >>. Claims with zero elements MUST be omitted from the response.
+
+An error response uses the applicable HTTP status code value.
 
 The following is a non-normative example response:
 
@@ -113,7 +131,27 @@ Content-Type: application/json
      }
 ~~~
 
-An error response uses the applicable HTTP status code value.
+## Client Metadata Validation
+
+The  << TBC - "client_uri" ?? >> value returned MUST be identical to the "Client ID" value into which the well-known URI string was concatenated to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
+
+# String Operations
+
+Processing some OAuth 2.0 messages requires comparing values in the messages to known values.  For example, the member names in the metadata response might be compared to specific member names such as "client_uri". Comparing Unicode [UNICODE] strings, however, has significant security implications.
+
+Therefore, comparisons between JSON strings and other Unicode strings MUST be performed as specified below:
+
+1.  Remove any JSON-applied escaping to produce an array of Unicode
+    code points.
+
+2.  Unicode Normalization [USA15] MUST NOT be applied at any point to
+    either the JSON string or the string it is to be compared
+    against.
+
+3.  Comparisons between the two strings MUST be performed as a
+    Unicode code-point-to-code-point equality comparison.
+
+Note that this is the same equality comparison procedure described in (<eref target= "https://www.rfc-editor.org/rfc/rfc8259#section-8.3"> Section 8.3 of [RFC8259]</eref>).
 
 In the following sections, we describe the mechanism through which a client communicates its metadata discovery url.
 
@@ -136,7 +174,7 @@ HOST: server.example.com
 
 The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
 
-After extracting the "client_id" URL from the authorization request, the authorization server MAY execute the [Client Discovery Flow](#client-discovery-flow) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the authorization request.
+After extracting the "client_id" URL from the authorization request, the authorization server MAY execute the [Obtaining Client Metadata](#obtaining-client-metadata) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the authorization request.
 
 Following is a non-normative check that an authorization server can perform to validate the clients:
 
@@ -176,15 +214,11 @@ grant_type=authorization_code
 &client_discovery=true
 ~~~
 
-After extracting the "client_id" URL from the token request, the authorization server MAY execute the [Client Discovery Flow](#client-discovery-flow) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the token request.
+After extracting the "client_id" URL from the token request, the authorization server MAY execute the [Obtaining Client Metadata](#obtaining-client-metadata) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the token request.
 
 Once the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
 
 In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</eref>).
-
-# Client Metadata
-
-<< TODO Expand on client metadata formats. describe briefly about using sub-domain for multiple clients under the same domain >>
 
 
 # Operational Consideration
@@ -202,6 +236,10 @@ In case of any errors, error response is returned (<eref target="https://www.rfc
 << TODO - HTTPS url , checking the redirect url matches the url associated in the client ID field>>
 
 TODO Security
+
+# Compatibility Notes
+
+<< TODO - Reference OpenID Federation compatability consideration >>
 
 # IANA Considerations
 
