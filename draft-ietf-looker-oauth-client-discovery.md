@@ -161,8 +161,6 @@ In the following sections, we describe the mechanism through which a client comm
 
 A client can indicate to an authorisation server that it has discoverable metadata in an authorization request via the "client_discovery" request parameter. Presence of this parameter in an authorization request with a value of "true" indicates to the authorization server that the "client_id" value of the authorization request is the "client_uri" for the client and if the authorization server does not already have the metadata for the supplied "client_id" it can retrieve the clients metadata by following the procedure outlined in [Client Metadata Section](#client-metadata).
 
-## Authorization Request
-
 The following is a non-normative example request of a client making an authorization request to an authorization server with the "client_discovery" parameter:
 
 ~~~ http
@@ -197,8 +195,6 @@ In case of any errors, error response is returned (<eref target="https://www.rfc
 # Token Request Using Client Discovery
 
 If an authorization server requires a client id during token request, the token request must include the new request parameter "client_discovery" to advertise itself as a discoverable client. This token request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the client's metadata, instead of trying to make sense of the value amongst existing registered clients.
-
-## Token Request
 
 The following is a non-normative example request of a client making an token request using "client_discovery" parameter:
 
