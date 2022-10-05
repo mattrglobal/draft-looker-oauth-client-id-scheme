@@ -123,8 +123,8 @@ HTTP/1.1 200 OK
 Content-Type: application/json
     {
       "redirect_uris": [
-        "https://client.example.com/callback",
-        "https://client.example.com/callback2"],
+        "https://client.example.com/cb",
+        "https://client.example.com/cb2"],
       "client_name": "My Example Client",
       "client_uri": "https://client.example.com/",
       "token_endpoint_auth_method": "client_secret_basic",
