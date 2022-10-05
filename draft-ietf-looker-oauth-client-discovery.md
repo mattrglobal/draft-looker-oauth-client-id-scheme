@@ -63,7 +63,7 @@ Instead of requiring a registration process, this specification describes a mode
 
 The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Obtaining Client Metadata](#obtaining-client-metadata)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets). Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server.
 
-This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata elements or formats are defined in this specification.
+This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata fields or formats are defined in this specification.
 
 ## Conventions and Terminology
 
@@ -75,9 +75,9 @@ The terms "request", "response", "header field", and "target URI" are imported f
 
 # Client Metadata
 
-Clients can have metadata described in their configuration. Examples of existing registered metadata elements that a client can make use of can be found at the <eref target= "https://www.rfc-editor.org/rfc/rfc7591.html#section-4.1"> OAuth 2.0 dynamic client registration metadata IANA registry [RFC 7591]</eref>.
+Clients can have metadata described in their configuration. Examples of existing registered metadata fields that a client can make use of can be found at the <eref target= "https://www.rfc-editor.org/rfc/rfc7591.html#section-4.1"> OAuth 2.0 dynamic client registration metadata IANA registry [RFC 7591]</eref>.
 
-The client's metadata MUST include the client_uri element as defined in section 2 of RFC7591 {{!RFC7591}}. The value of this element MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 (::1).
+The client's metadata MUST include the client_uri field as defined in section 2 of RFC7591 {{!RFC7591}}. The value of this field MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 (::1).
 
 # Obtaining Client Metadata
 
@@ -110,9 +110,9 @@ Using path components enables supporting multiple clients per host. This is requ
 
 ## Client Metadata Response
 
-The response is a set of elements describing client's configuration, including all necessary metadata and public key location information. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the "application/json" content type that contains a set of elements as defined in [Client Metadata](#client-metadata). Other elements MAY also be returned.
+The response is a set of metadata values describing client's configuration, including all valid redirection URIs and public key location information. A successful response MUST use the 200 OK HTTP status code and return a JSON object using the "application/json" content type that contains a set of metadata fields and values as defined in [Client Metadata](#client-metadata). Other metadata fields MAY also be returned.
 
-Elements that return multiple values are represented as JSON arrays. Elements with no values MUST be omitted from the response.
+Metadata fields that return multiple values are represented as JSON arrays. Metadata fields with no values MUST be omitted from the response.
 
 An error response uses the applicable HTTP status code value.
 
