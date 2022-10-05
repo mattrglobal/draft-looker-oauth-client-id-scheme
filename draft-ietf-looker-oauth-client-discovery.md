@@ -123,12 +123,13 @@ HTTP/1.1 200 OK
 Content-Type: application/json
     {
       "redirect_uris": [
-        "https://client.example.org/callback",
-        "https://client.example.org/callback2"],
+        "https://client.example.com/callback",
+        "https://client.example.com/callback2"],
       "client_name": "My Example Client",
+      "client_uri": "https://client.example.com/",
       "token_endpoint_auth_method": "client_secret_basic",
-      "logo_uri": "https://client.example.org/logo.png",
-      "jwks_uri": "https://client.example.org/my_public_keys.jwks",
+      "logo_uri": "https://client.example.com/logo.png",
+      "jwks_uri": "https://client.example.com/my_public_keys.jwks",
       "example_extension_parameter": "example_value"
      }
 ~~~
@@ -165,10 +166,10 @@ The following is a non-normative example request of a client making an authoriza
 
 ~~~ http
 GET /authorize?response_type=code
-    &client_id=https%3A%2F%2Fclient.example.org
+    &client_id=https%3A%2F%2Fclient.example.com
     &client_discovery=true
     &state=af0ifjsldkj
-    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+    &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
 HOST: server.example.com
 ~~~
 
