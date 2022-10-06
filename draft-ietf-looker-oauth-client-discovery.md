@@ -81,9 +81,9 @@ The client's metadata MUST include the client_uri field as defined in section 2 
 
 # Obtaining Client Metadata
 
-Client supporting metadata MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by concatenating a well-known URI string to the client_uri value.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA "Well-Known URIs" registry (IANA.well-known).
+Client supporting metadata MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by by inserting a well-known URI string into the authorization server's issuer identifier between the host component and the path component, if any.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA "Well-Known URIs" registry (IANA.well-known).
 
-Different clients utilizing OAuth 2.0 in application-specific ways may define and register different well-known URI suffixes used to publish client metadata as used by those applications.  For instance, if the example client uses in an example-specific way, and there are example-specific metadata values that it needs to publish,then it might register and use the "example-configuration" URI suffix and publish the metadata document at the path formed by concatenating "/.well-known/example-configuration" to the client_uri. Alternatively, many such clients will use the default well-known URI string "/.well-known/oauth-client", which is the right choice for general-purpose OAuth 2.0 applications.
+Different clients utilizing OAuth 2.0 in application-specific ways may define and register different well-known URI suffixes used to publish client metadata as used by those applications.  For instance, if the example client uses in an example-specific way, and there are example-specific metadata values that it needs to publish,then it might register and use the "example-configuration" URI suffix and publish the metadata document at the path formed by inserting "/.well-known/example-configuration" between the host and path components of the authorization server's issuer identifier. Alternatively, many such clients will use the default well-known URI string "/.well-known/oauth-client", which is the right choice for general-purpose OAuth 2.0 applications.
 
 An OAuth 2.0 client using this specification MUST specify what well-known URI suffix it will use for this purpose. The same client MAY choose to publish its metadata at multiple well-known locations derived from its client_uri, for example, publishing metadata at both "/.well-known/example-configuration" and
 "/.well-known/oauth-client".
@@ -99,10 +99,10 @@ GET /.well-known/oauth-client HTTP/1.1
 Host: client.example.com
 ~~~
 
-If the client_uri value contains a path component, "/.well-known/"  and the well-known URI suffix is concatenated with client_uri and the contained path. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com/client1" and the well-known URI suffix is "oauth-client" to obtain the metadata, since the client_uri contains a path component:
+If the client_uri value contains a path component, any terminating "/" MUST be removed before inserting "/.well-known/" and the well-known URI suffix between the host component and the path component. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com/client1" and the well-known URI suffix is "oauth-client" to obtain the metadata, since the client_uri contains a path component:
 
 ~~~ http
-GET /client1/.well-known/oauth-client HTTP/1.1
+GET /.well-known/oauth-client/client1 HTTP/1.1
 Host: client.example.com
 ~~~
 
@@ -136,7 +136,7 @@ Content-Type: application/json
 
 ## Client Metadata Validation
 
-The  client_uri value returned in the client metadata response MUST be identical to the client_uri value that was used in conjunction with the chosen well-known URI string was concatenated to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
+The  client_uri value returned in the client metadata response MUST be identical to the client_uri value into which the well-known URI string was inserted to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
 
 # String Operations
 
