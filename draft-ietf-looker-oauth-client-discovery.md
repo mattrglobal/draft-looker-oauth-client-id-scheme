@@ -99,7 +99,7 @@ GET /.well-known/oauth-client HTTP/1.1
 Host: client.example.com
 ~~~
 
-If the client_uri value contains a path component, any terminating "/" MUST be removed before inserting "/.well-known/" and the well-known URI suffix between the host component and the path component. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com/client1" and the well-known URI suffix is "oauth-client" to obtain the metadata, since the client_uri contains a path component:
+If the client_uri value contains a path component, any terminating "/" MUST be removed before inserting "/.well-known/" and the well-known URI suffix between the host component and the path component. The OAuth 2.0 authorization server would make the following request when the client_uri is "https://client.example.com/client1" and the well-known URI suffix is "/.well-known/oauth-client" to obtain the metadata, since the client_uri contains a path component:
 
 ~~~ http
 GET /.well-known/oauth-client/client1 HTTP/1.1
@@ -238,17 +238,17 @@ Note that this is the same equality comparison procedure described in (<eref tar
 ## TLS Requirements
 
 Implementations MUST support TLS.  Which version(s) ought to be implemented will vary over time and depend on the widespread
-deployment and known security vulnerabilities at the time of implementation.  The authorization server MUST support TLS version 1.2 {{!RFC5246}} and MAY support additional TLS mechanisms meeting its security requirements.  When using TLS, the client MUST perform a TLS/SSL server certificate check, per RFC 6125 {{!RFC6125}}.
+deployment and known security vulnerabilities at the time of implementation.  The client MUST support TLS version 1.2 {{!RFC5246}} and MAY support additional TLS mechanisms meeting its security requirements.  When using TLS, the authorization server MUST perform a TLS/SSL server certificate check, per RFC 6125 {{!RFC6125}}.
 Implementation security considerations can be found in "Recommendations for Secure Use of Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)" {{!BCP195}}.
 
 To protect against information disclosure and tampering, confidentiality protection MUST be applied using TLS with a ciphersuite that provides confidentiality and integrity protection.
 
 ## Impersonation Attacks
 
-TLS certificate checking MUST be performed by the client, as described in Section 6.1, when making an authorization server metadata request. Checking that the server certificate is valid for the issuer identifier URL prevents man-in-middle and DNS-based attacks. These attacks could cause a client to be tricked into using an attacker's keys and endpoints, which would enable impersonation of the legitimate authorization server.  If an attacker can accomplish this, they can access the resources that the affected client has access to using the authorization server that they are impersonating.
+TLS certificate checking MUST be performed by the authorization server, as described in [](#tls-requirements), when making a client metadata request. Checking that the server certificate is valid for the "client_uri" URL prevents man-in-middle and DNS-based attacks. These attacks could cause a authorization server to be tricked into using an attacker's keys and endpoints, which would enable impersonation of the legitimate client.  If an attacker can accomplish this, they can access the resources that the affected client has access to by impersonating their profile.
 
-An attacker may also attempt to impersonate an authorization server by publishing a metadata document that contains an "issuer" claim using the issuer identifier URL of the authorization server being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that authorization server, if accepted
-by the client.  To prevent this, the client MUST ensure that the issuer identifier URL it is using as the prefix for the metadata request exactly matches the value of the "issuer" metadata value in the authorization server metadata document received by the client.
+An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
+by the authorization server.  To prevent this, the authorization server MUST ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.
 
 ## Publishing Metadata in a Standard Format
 
@@ -256,12 +256,12 @@ Publishing information about the authorization server in a standard format makes
 
 ## Protected Resources
 
-Secure determination of appropriate protected resources to use with an authorization server for all use cases is out of scope of this specification. This specification assumes that the client has a means of determining appropriate protected resources to use with an authorization server and that the client is using the correct metadata for each authorization server. Implementers need to be aware that if an inappropriate protected resource is used by the client, that an attacker may be able to act as a man-in-the-middle proxy to a valid protected resource without it being detected by the authorization server or the client.
+Secure determination of appropriate protected resources to use with a client for all use cases is out of scope of this specification. This specification assumes that the authorization server has a means of determining appropriate protected resources to use with a client and that the authorization server is using the correct metadata for each client. Implementers need to be aware that if an inappropriate protected resource is used by the authorization server, that an attacker may be able to act as a man-in-the-middle proxy to a valid protected resource without it being detected by the client or the authorization server.
 
-The ways to determine the appropriate protected resources to use with an authorization server are, in general, application dependent. For instance, some authorization servers are used with a fixed protected resource or set of protected resources, the locations of which may be well known or could be published as metadata values by the
-authorization server. In other cases, the set of resources that can be used with an authorization server can be dynamically changed by administrative actions. Many other means of determining appropriate associations between authorization servers and protected resources are also possible.
+The ways to determine the appropriate protected resources to use with a client are, in general, application dependent. For instance, some clients are used with a fixed protected resource or set of protected resources, the locations of which may be well known or could be published as metadata values by the
+client. In other cases, the set of resources that can be used with a client can be dynamically changed by administrative actions. Many other means of determining appropriate associations between clients and protected resources are also possible.
 
-<< TODO - Would it be easier to reference security considerations listed in RFC 8414?? >>
+<< TODO - Confirm whether protected resources are required and Would it be easier to reference security considerations listed in RFC 8414?? >>
 
 # Compatibility Notes
 
