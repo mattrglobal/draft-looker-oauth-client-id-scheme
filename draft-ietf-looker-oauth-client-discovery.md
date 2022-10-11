@@ -142,7 +142,7 @@ In the following sections, we describe the mechanism through which a client comm
 
 # Authorization Request Using Client Discovery
 
-A client can indicate to an authorization server that it has discoverable metadata in an authorization request via the "client_discovery" request parameter. Presence of this parameter in an authorization request with a value of "true" indicates to the authorization server that the "client_id" value of the authorization request is the "client_uri" for the client and if the authorization server does not already have the metadata for the supplied "client_id" it can retrieve the clients metadata by following the procedure outlined in [Client Metadata Section](#client-metadata).
+A client can indicate to an authorization server that it has discoverable metadata in an authorization request via the "client_discovery" request parameter. Presence of this parameter in an authorization request with a value of "true" indicates to the authorization server that the "client_id" value of the authorization request is a URL encoded value corresponding to the "client_uri" for the client and if the authorization server does not already have the metadata for the identified client it can retrieve the metadata by following the procedure outlined in [Client Metadata Section](#client-metadata).
 
 The following is a non-normative example request of a client making an authorization request to an authorization server with the "client_discovery" parameter:
 
@@ -157,11 +157,9 @@ HOST: server.example.com
 
 The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
 
-The "client_id" recieved in the authorization request will be URL encoded. The query parameter "client_id" MUST be decoded before further processing.
+The value of the "client_id" parameter in the authorization request MUST represent the URL encoded form of the "client_uri" value for the corresponding client. The "client_id" value MUST be URL decoded by the authorization server to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata](#obtaining-client-metadata) section.
 
-After extracting the decoded "client_id" from the authorization request, the authorization server MAY execute the [Obtaining Client Metadata](#obtaining-client-metadata) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the authorization request.
-
-Following is a non-normative check that an authorization server can perform to validate the clients:
+Following is a non-normative check that an authorization server can perform to validate the client's metadata:
 
 * If the URL scheme, host or port of the redirect_uri in the request do not match that of the client_id, then the authorization endpoint SHOULD verify that the requested redirect_uri matches one of the redirect URLs published by the client, and SHOULD block the request from proceeding if not.
 * Since domain names are case insensitive, the host component of the URL MUST be compared case insensitively. Implementations SHOULD convert the host to lowercase when storing and using URLs.
