@@ -200,16 +200,6 @@ Therefore, comparisons between JSON strings and other Unicode strings MUST be pe
 
 Note that this is the same equality comparison procedure described in (<eref target= "https://www.rfc-editor.org/rfc/rfc8259#section-8.3"> Section 8.3 of [RFC8259]</eref>).
 
-# Operational Consideration
-
-## Caching
-
-<< TODO - Expand on caching considerations for the client metadata that could be added (e.g HTTP request caching) to limit how often an AS/OP needs to actually resolve the clients ID. >>
-
-## Proposed Client Authentication methods (to avoid storing client credentials)
-
-<< TODO - Explain different methods for client authenticaiton (attestation, JWTs for client authentication {{!RFC7523}} >>
-
 # Security Considerations
 
 ## TLS Requirements
@@ -227,13 +217,31 @@ TLS certificate checking MUST be performed by the authorization server, as descr
 An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
 by the authorization server.  To prevent this, the authorization server MUST ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.
 
+
 # Compatibility Notes
 
-<< TODO - Reference OpenID Federation compatability consideration >>
 
 # IANA Considerations
 
-<< TODO - Confirm whether to use the same IANA Consideration text as RFC 8414 >>
+IANA has made the following registrations per this document.
+
+## OAuth Parameters Registry
+
+This specification registers the following parameters in the IANA "OAuth Parameters" registry defined in OAuth 2.0 RFC 6749 {{!RFC6749}}
+
+client_discovery - Authorisation request
+
+- Parameter name: client_discovery
+- Parameter usage location: authorization request
+- Change controller: IESG
+- Specification document(s): RFC XXXX (this document)
+
+client_discovery - Token request
+
+- Parameter name: client_discovery
+- Parameter usage location: token request
+- Change controller: IESG
+- Specification document(s): RFC XXXX (this document)
 
 ## Well-Known URI Registry
 
