@@ -51,17 +51,15 @@ This specification defines a mechanism for an OAuth 2.0 authorization server to 
 
 # Introduction
 
-In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, whether it be dynamically or out of band, during this registration process the authorization server records certain characteristics about the client known as metadata.
+In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, during this the authorization server records certain characteristics about the client known as metadata.
 
-The requirement for client registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration with affected authorization servers for this change to be recognized. The limitation of registration also constrains distributed deployments that feature many clients and authorization servers whereby requiring the client to register is costly.
+This requirement for registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration with affected authorization servers for this change to be recognized. This requirement also constrains deployments that feature many clients and authorization servers whereby requiring the client to be registered with and maintain this registration with an authorization server is costly.
 
-To improve the dynamic relationship between client and authorization server, mechanisms such as dynamic client registration {{!RFC7591}} was introduced. In dynamic client registration model, to register clients in real-time, a client will make a pre-flight request to authorizaiton server by including a set of client metadata and post it to the authorization server. If successful, the authorization server responds with a client id (and secret, if applicable) and a registration confirmation returning the registered client metadata (including any applicable defaults).
+To enable a more dynamic relationship between a client and an authorization server, dynamic client registration {{!RFC7591}} was introduced. This model allows a client to register dynamically with a supporting authorization server by sending a registration request. Although this mechanism does provide a way for a client to dynamically register it does introduce new operational challenges for both the client and AS. For instance clients that interface with many authorization servers are burdened with having to manage a client_id per authorization server and in some cases forced to re-register the same client instance multiple times due to storage limitations on the client. Furthermore, protecting the authorization servers registration endpoint forces other design tradeoffs, either the authorization server requires a "registration_token" for registration requests, which is often problematic for public clients to manage/obtain. Or the authorization server permits any registration request and has to mitigate potential spam/malicious registration requests.
 
-Although dynamic client registration enables Just-In-Time (JIT) client registration, management of client IDs and secrets is an operational challenge experienced by both clients and servers that is not addressed with the dynamic client registration specification. Short-lived clients that runs on a browser may need to register for new client ID everytime it is instantiated due to the lack of long-term storage. This causes lot of dead client registrations. To efficiently manage the registration storage, the authorization server needs to implement a mechanism to periodically prune the dead client entities. Also, when dynamic client registration is enabled for public clients, malicious actors can target the authorization server to overwhelm its resources by registering massive number of fake client entries. Appropriate security mechanisms should be considered by authorization servers to prevent these types of attacks. With the current client registration model, clients that needs to communicate with multiple authorization servers has to maintain multiple client identifiers to interact with them. This forces state management at client side and can be avoided if a client can use a single client identifier across multiple authorization servers.
+Instead of requiring a registration process, this specification describes a model where a client identifies itself to the authorization server with its client_uri, which can be resolved to its metadata in a similar way to how an authorization server makes its metadata available to a client via {{!RFC8414}}.
 
-Instead of requiring a registration process, this specification describes a model where a client can make itself discoverable to an authorization server in a similar way an authorization server makes itself discoverable to a client today with OAuth 2.0 Authorization Server Metadata {{!RFC8414}}.
-
-The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Obtaining Client Metadata](#obtaining-client-metadata)). This removes the need to send a pre-flight request to register the client metadata. Also, In this model a client can interact with mulitple authorization servers without the need to maintain state information (such as client ids and secrets). Once the client metadata is accepted by OAuth 2.0 authorization server, the client can interact with the authorisaiton server like any other OAuth 2.0 client registered with the OAuth 2.0 authorization server.
+The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Obtaining Client Metadata](#obtaining-client-metadata)). Once the client metadata is accepted by the OAuth 2.0 authorization server, the client can interact with the authorisation server like any other OAuth 2.0 client.
 
 This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata fields or formats are defined in this specification.
 
@@ -106,7 +104,7 @@ GET /.well-known/oauth-client/client1 HTTP/1.1
 Host: client.example.com
 ~~~
 
-Using path components enables supporting multiple clients per host. This is required in some complex client hosting configurations. This use of ".well-known" is for supporting multiple clients per host; unlike its use in RFC 5785 {{!RFC5785}}, it does not provide general information about the host.
+Using path components enables supporting multiple clients per host. This is required in some complex client configurations. This use of ".well-known" is for supporting multiple clients per host; unlike its use in RFC 5785 {{!RFC5785}}, it does not provide general information about the host.
 
 ## Client Metadata Response
 
@@ -155,31 +153,12 @@ GET /authorize?response_type=code
 HOST: server.example.com
 ~~~
 
-The client metadata is discovered using the URL supplied in the "client_id" parameter of the request. The supplied URL MUST be a URI RFC 3986 {{!RFC3986}} with a scheme component that MUST be https, a host component, and optionally, port and path components and no query or fragment components. Additionally, host names MUST be domain names or a loopback interface and MUST NOT be IPv4 or IPv6 addresses except for IPv4 127.0.0.1 or IPv6 [::1].
-
 The value of the "client_id" parameter in the authorization request MUST represent the URL encoded form of the "client_uri" value for the corresponding client. The "client_id" value MUST be URL decoded by the authorization server to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata](#obtaining-client-metadata) section.
 
-Following is a non-normative check that an authorization server can perform to validate the client's metadata:
-
-* If the URL scheme, host or port of the redirect_uri in the request do not match that of the client_id, then the authorization endpoint SHOULD verify that the requested redirect_uri matches one of the redirect URLs published by the client, and SHOULD block the request from proceeding if not.
-* Since domain names are case insensitive, the host component of the URL MUST be compared case insensitively. Implementations SHOULD convert the host to lowercase when storing and using URLs.
-
-Once the authorization request is successfully validated and processed, the authorization server issues an authorization code and delivers it to the client by
-adding it as query parmeter (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-4.1.1">as described in the Section 4.1.2 of [RFC6749]</eref>) to the redirection URI using the "application/x-www-form-urlencoded" format.
-
-~~~ http
-HTTP/1.1 302 Found
-Location: https://client.example.com/cb?code=SplxlOBeZQQYbYS6WxSbIA
-&state=xyz
-~~~
-
-In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-4.1.2.1">as described in the Section 4.1.2.1 of [RFC6749]</eref>).
 
 # Token Request Using Client Discovery
 
-If an authorization server requires a client id during token request, the token request must include the new request parameter "client_discovery" to advertise itself as a discoverable client. This token request, processed by a supporting authorization server, would indicate that the client_id value supplied is infact a URL that should be resolved to obtain the client's metadata, instead of trying to make sense of the value amongst existing registered clients.
-
-<< TODO - Add Client_id decoding logic>>
+A client can indicate to an authorization server that it has discoverable metadata in an token request via the "client_discovery" request parameter.
 
 The following is a non-normative example request of a client making an token request using "client_discovery" parameter:
 
@@ -247,19 +226,6 @@ TLS certificate checking MUST be performed by the authorization server, as descr
 
 An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
 by the authorization server.  To prevent this, the authorization server MUST ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.
-
-## Publishing Metadata in a Standard Format
-
-Publishing information about the authorization server in a standard format makes it easier for both legitimate clients and attackers to use the authorization server.  Whether an authorization server publishes its metadata in an ad hoc manner or in the standard format defined by this specification, the same defenses against attacks that might be mounted that use this information should be applied.
-
-## Protected Resources
-
-Secure determination of appropriate protected resources to use with a client for all use cases is out of scope of this specification. This specification assumes that the authorization server has a means of determining appropriate protected resources to use with a client and that the authorization server is using the correct metadata for each client. Implementers need to be aware that if an inappropriate protected resource is used by the authorization server, that an attacker may be able to act as a man-in-the-middle proxy to a valid protected resource without it being detected by the client or the authorization server.
-
-The ways to determine the appropriate protected resources to use with a client are, in general, application dependent. For instance, some clients are used with a fixed protected resource or set of protected resources, the locations of which may be well known or could be published as metadata values by the
-client. In other cases, the set of resources that can be used with a client can be dynamically changed by administrative actions. Many other means of determining appropriate associations between clients and protected resources are also possible.
-
-<< TODO - Confirm whether protected resources are required and Would it be easier to reference security considerations listed in RFC 8414?? >>
 
 # Compatibility Notes
 
