@@ -176,9 +176,9 @@ grant_type=authorization_code
 &client_discovery=true
 ~~~
 
-After extracting the "client_id" URL from the token request, the authorization server MAY execute the [Obtaining Client Metadata](#obtaining-client-metadata) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the token request.
+The "client_id" parameter is passed to the token request during client authentication (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</eref>). Clients in possession of a client password MAY use the HTTP Basic authentication scheme as defined in RFC 2617 {{!RFC2617}} or MAY include the client credentials in the request-body to authenticate with the authorization server. In both the cases "client_id" value MUST be encoded using the "application/x-www-form-urlencoded" encoding algorithm. An authorization server recieving this token request MUST URL decode the "client_id" value extracted from authorization header or request-body to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata Section](#obtaining-client-metadata). Once resolved, the authorization server can perform checks based on the resolved metadata in order to decide whether to proceed with the token request.
 
-Once the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
+After the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
 
 In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</eref>).
 
@@ -200,16 +200,6 @@ Therefore, comparisons between JSON strings and other Unicode strings MUST be pe
 
 Note that this is the same equality comparison procedure described in (<eref target= "https://www.rfc-editor.org/rfc/rfc8259#section-8.3"> Section 8.3 of [RFC8259]</eref>).
 
-# Operational Consideration
-
-## Caching
-
-<< TODO - Expand on caching considerations for the client metadata that could be added (e.g HTTP request caching) to limit how often an AS/OP needs to actually resolve the clients ID. >>
-
-## Proposed Client Authentication methods (to avoid storing client credentials)
-
-<< TODO - Explain different methods for client authenticaiton (attestation, JWTs for client authentication {{!RFC7523}} >>
-
 # Security Considerations
 
 ## TLS Requirements
@@ -227,13 +217,31 @@ TLS certificate checking MUST be performed by the authorization server, as descr
 An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
 by the authorization server.  To prevent this, the authorization server MUST ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.
 
+
 # Compatibility Notes
 
-<< TODO - Reference OpenID Federation compatability consideration >>
 
 # IANA Considerations
 
-<< TODO - Confirm whether to use the same IANA Consideration text as RFC 8414 >>
+The following IANA registration requests are made by this document.
+
+## OAuth Parameters Registry
+
+This specification registers the following parameters in the IANA "OAuth Parameters" registry defined in OAuth 2.0 RFC 6749 {{!RFC6749}}
+
+client_discovery - Authorisation request
+
+- Parameter name: client_discovery
+- Parameter usage location: authorization request
+- Change controller: IESG
+- Specification document(s): RFC XXXX (this document)
+
+client_discovery - Token request
+
+- Parameter name: client_discovery
+- Parameter usage location: token request
+- Change controller: IESG
+- Specification document(s): RFC XXXX (this document)
 
 ## Well-Known URI Registry
 
