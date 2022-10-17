@@ -51,7 +51,7 @@ This specification defines a mechanism for an OAuth 2.0 authorization server to 
 
 # Introduction
 
-In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, during this the authorization server records certain characteristics about the client known as metadata.
+In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, during this registration process the authorization server records certain characteristics about the client known as metadata.
 
 This requirement for registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration with affected authorization servers for this change to be recognized. This requirement also constrains deployments that feature many clients and authorization servers whereby requiring the client to be registered with and maintain this registration with an authorization server is costly.
 
