@@ -176,9 +176,9 @@ grant_type=authorization_code
 &client_discovery=true
 ~~~
 
-After extracting the "client_id" URL from the token request, the authorization server MAY execute the [Obtaining Client Metadata](#obtaining-client-metadata) in order to obtain the client's metadata. Once obtained, it can perform checks based on this metadata in order to decide whether to proceed with the token request.
+In some instances, the "client_id" parameter is passed to the token request during client authentication (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</eref>). Clients in possession of a client password MAY use the HTTP Basic authentication scheme as defined in RFC 2617 {{!RFC2617}} or MAY include the client credentials in the request-body to authenticate with the authorization server. In both the cases "client_id" value MUST be encoded using the "application/x-www-form-urlencoded" encoding algorithm. An authorization server recieving this token request MUST URL decode the "client_id" value extracted from authorization header or request-body to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata Section](#obtaining-client-metadata). Once resolved, the authorization server can perform checks based on the resolved metadata in order to decide whether to proceed with the token request.
 
-Once the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
+After the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
 
 In case of any errors, error response is returned (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</eref>).
 
