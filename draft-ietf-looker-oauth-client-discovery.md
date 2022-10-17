@@ -176,7 +176,7 @@ grant_type=authorization_code
 &client_discovery=true
 ~~~
 
-In some instances, the "client_id" parameter is passed to the token request during client authentication (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</eref>). Clients in possession of a client password MAY use the HTTP Basic authentication scheme as defined in RFC 2617 {{!RFC2617}} or MAY include the client credentials in the request-body to authenticate with the authorization server. In both the cases "client_id" value MUST be encoded using the "application/x-www-form-urlencoded" encoding algorithm. An authorization server recieving this token request MUST URL decode the "client_id" value extracted from authorization header or request-body to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata Section](#obtaining-client-metadata). Once resolved, the authorization server can perform checks based on the resolved metadata in order to decide whether to proceed with the token request.
+The "client_id" parameter is passed to the token request during client authentication (<eref target="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</eref>). Clients in possession of a client password MAY use the HTTP Basic authentication scheme as defined in RFC 2617 {{!RFC2617}} or MAY include the client credentials in the request-body to authenticate with the authorization server. In both the cases "client_id" value MUST be encoded using the "application/x-www-form-urlencoded" encoding algorithm. An authorization server recieving this token request MUST URL decode the "client_id" value extracted from authorization header or request-body to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata Section](#obtaining-client-metadata). Once resolved, the authorization server can perform checks based on the resolved metadata in order to decide whether to proceed with the token request.
 
 After the token request is successfully validated, the token endpoint MUST continue processing as normal (as defined by OAuth 2.0 [RFC6749])
 
@@ -223,7 +223,7 @@ by the authorization server.  To prevent this, the authorization server MUST ens
 
 # IANA Considerations
 
-IANA has made the following registrations per this document.
+The following IANA registration requests are made by this document.
 
 ## OAuth Parameters Registry
 
