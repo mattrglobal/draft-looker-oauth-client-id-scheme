@@ -160,7 +160,7 @@ HOST: server.example.com
 
 The value of the "client_id" parameter in the authorization request MUST represent the URL encoded form of the "client_uri" value for the corresponding client. The "client_id" value MUST be URL decoded by the authorization server to obtain the "client_uri" value which can be used to resolve the client metadata as described in the [Obtaining Client Metadata](#obtaining-client-metadata) section.
 
-<TODO stipulate new error responses>
+**TODO stipulate new error responses**
 
 # Token Request Using Client Discovery
 
@@ -224,7 +224,7 @@ by the authorization server.  To prevent this, the authorization server MUST ens
 
 # Compatibility Notes
 
-<TODO>
+**TODO**
 
 # IANA Considerations
 
