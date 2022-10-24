@@ -50,7 +50,7 @@ informative:
 
 --- abstract
 
-This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for registration.
+This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for registration of the client.
 
 --- middle
 
@@ -64,9 +64,11 @@ To enable a more dynamic relationship between a client and an authorization serv
 
 Instead of requiring a registration process, this specification describes a model where a client identifies itself to the authorization server with its client_uri, which can be resolved to its metadata in a similar way to how an authorization server makes its metadata available to a client via {{!RFC8414}}.
 
-The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities (This process is described in [Obtaining Client Metadata](#obtaining-client-metadata)). Once the client metadata is retrieved and processed by the OAuth 2.0 authorization server, the client can interact with the authorization server like any other OAuth 2.0 client.
+The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities, this process is described in [Obtaining Client Metadata](#obtaining-client-metadata). Once the client metadata is retrieved and processed by the OAuth 2.0 authorization server, the client can interact with the authorization server like any other OAuth 2.0 client.
 
-This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with authorization server and expects the authorization server to resolve the metadata from the specified URL. This specification uses the same metadata format defined in the client registration specification {{!RFC7591}} and no additional metadata fields or formats are defined in this specification.
+This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with the authorization server and instead has resolvable metadata that describes its endpoint locations and capabilities.
+
+This specification uses the metadata elements defined in the client registration specification {{!RFC7591}} and no additional metadata fields or formats are defined in this specification.
 
 ## Conventions and Terminology
 
@@ -124,22 +126,23 @@ The following is a non-normative example response:
 ~~~ http
 HTTP/1.1 200 OK
 Content-Type: application/json
-    {
-      "redirect_uris": [
-        "https://client.example.com/cb",
-        "https://client.example.com/cb2"],
-      "client_name": "My Example Client",
-      "client_uri": "https://client.example.com/",
-      "token_endpoint_auth_method": "client_secret_basic",
-      "logo_uri": "https://client.example.com/logo.png",
-      "jwks_uri": "https://client.example.com/my_public_keys.jwks",
-      "example_extension_parameter": "example_value"
-     }
+
+{
+    "client_uri": "https://client.example.com",
+    "client_name": "My Example Client",
+    "redirect_uris": [
+    "https://client.example.com/cb",
+    "https://client.example.com/cb2"],
+    "token_endpoint_auth_method": "client_secret_basic",
+    "logo_uri": "https://client.example.com/logo.png",
+    "jwks_uri": "https://client.example.com/my_public_keys.jwks",
+    "example_extension_parameter": "example_value"
+}
 ~~~
 
 ## Client Metadata Validation
 
-The  client_uri value returned in the client metadata response MUST be identical to the client_uri value into which the well-known URI string was inserted to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
+The client_uri value returned in the client metadata response MUST be identical to the client_uri value into which the well-known URI string was inserted to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
 
 The following sections describe the mechanism through which a client communicates its metadata discovery url.
 
