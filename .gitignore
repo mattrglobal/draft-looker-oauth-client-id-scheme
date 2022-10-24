@@ -15,6 +15,6 @@
 /versioned/
 Gemfile.lock
 archive.json
-draft-ietf-looker-oauth-client-discovery.xml
+draft-looker-oauth-client-discovery.xml
 package-lock.json
 report.xml
