@@ -131,8 +131,9 @@ Content-Type: application/json
     "client_uri": "https://client.example.com",
     "client_name": "My Example Client",
     "redirect_uris": [
-    "https://client.example.com/cb",
-    "https://client.example.com/cb2"],
+        "https://client.example.com/cb",
+        "https://client.example.com/cb2"
+    ],
     "logo_uri": "https://client.example.com/logo.png",
     "jwks_uri": "https://client.example.com/my_public_keys.jwks",
     "example_extension_parameter": "example_value"
