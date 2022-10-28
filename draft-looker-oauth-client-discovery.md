@@ -50,23 +50,23 @@ informative:
 
 --- abstract
 
-This specification defines a mechanism for an OAuth 2.0 authorization server to obtain the metadata of an OAuth 2.0 client, including its endpoint locations and capabilities without the need for registration of the client.
+This specification defines a mechanism for an authorization server to obtain the metadata of a client, including its endpoint locations and capabilities without the need for a registration process.
 
 --- middle
 
 # Introduction
 
-In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server registers and assigns an identifier to a client through a registration process, during which the authorization server records certain characteristics about the client commonly known as its metadata.
+In the traditional OAuth 2.0 model {{!RFC6749}}, the authorization server (AS) registers and assigns an identifier to a client through a registration process, during which the authorization server records certain characteristics about the client, commonly known as its metadata.
 
 This requirement for registration greatly reduces how dynamic the relationship between a client and authorization server can be. For instance, a client that is updating the capabilities it supports must update its registration(s) with affected authorization servers for this change to be recognized. This requirement also affects deployments that feature many clients and authorization servers whereby requiring the client to be registered with and maintain this registration with an authorization server is costly.
 
-To enable a more dynamic relationship between a client and an authorization server, dynamic client registration via {{!RFC7591}} was introduced. This model allows a client to register dynamically with a supporting authorization server by sending a registration request. Although this mechanism does provide some benefits it also introduces new operational challenges for both the client and AS. For instance clients that interface with many authorization servers are burdened with having to manage a client_id per authorization server and in some cases forced to re-register the same client instance multiple times due to storage limitations on the client. Furthermore, protecting the authorization servers registration endpoint forces other design tradeoffs, either the authorization server requires a "registration_token" for registration requests, which is often problematic for public clients to manage/obtain. Or the authorization server permits any registration request and has to mitigate potential spam/malicious registration requests via some other mechanism.
+To enable a more dynamic relationship between a client and an authorization server, dynamic client registration via {{!RFC7591}} was introduced. This model allows a client to register dynamically with a supporting authorization server by sending a registration request. Although this mechanism does provide some benefits it also introduces new operational challenges for both the client and AS. For instance clients that interface with many authorization servers are burdened with having to manage a client identifier per authorization server and in some cases forced to re-register the same client instance multiple times due to local storage limitations. Furthermore, protecting the authorization servers registration endpoint forces other design tradeoffs, typically either the authorization server enforces some form of authentication (e.g a "registration_token") for registration requests, which is often problematic for public clients to manage/obtain. Or the authorization server permits any registration request and has to mitigate potential spam/malicious registration requests via some other mechanism.
 
 Instead of requiring a registration process, this specification describes a model where a client identifies itself to the authorization server with its client_uri, which can be resolved to its metadata in a similar way to how an authorization server makes its metadata available to a client via {{!RFC8414}}.
 
-The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities, this process is described in [Obtaining Client Metadata](#obtaining-client-metadata). Once the client metadata is retrieved and processed by the OAuth 2.0 authorization server, the client can interact with the authorization server like any other OAuth 2.0 client.
+The metadata for a client is retrieved from a .well-known location as a JSON {{!RFC8259}} document, which declares its endpoint locations and client capabilities, this process is described in [Obtaining Client Metadata](#obtaining-client-metadata). Once the client metadata is retrieved and processed by the authorization server, the client can interact with the authorization server like any other client.
 
-This specification defines a new request parameter 'client_discovery' to indicate that the interacting OAuth 2.0 client has no prior registration with the authorization server and instead has resolvable metadata that describes its endpoint locations and capabilities.
+This specification defines a new request parameter 'client_discovery' to indicate that the interacting client has no prior registration with the authorization server and instead has resolvable metadata that describes its endpoint locations and capabilities.
 
 This specification uses the metadata elements defined in the client registration specification {{!RFC7591}} and no additional metadata fields or formats are defined in this specification.
 
@@ -86,7 +86,7 @@ The client's published metadata MUST include the client_uri field as defined in 
 
 # Obtaining Client Metadata
 
-A Client supporting metadata discovery MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by inserting a well-known URI string into the client_uri between the host component and the path component, if any.  By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA <eref target= "https://www.iana.org/assignments/well-known-uris">"Well-Known URIs"</eref> registry.
+A Client supporting metadata discovery MUST make a JSON document containing metadata as specified in RFC7591 {{!RFC7591}} available at a path formed by inserting a well-known URI string into the client_uri between the host component and the path component, if any. By default, the well-known URI string used is "/.well-known/oauth-client". This path MUST use the "https" scheme. The syntax and semantics of ".well-known" are defined in RFC 5785 {{!RFC5785}}. The well-known URI suffix used MUST be registered in the IANA <eref target= "https://www.iana.org/assignments/well-known-uris">"Well-Known URIs"</eref> registry.
 
 Different clients utilizing OAuth 2.0 in application-specific ways may define and register different well-known URI suffixes used to publish client metadata as used by those applications, for example using a well-known URI string such as "/.well-known/example-configuration". Alternatively, many such clients will use the default well-known URI string "/.well-known/oauth-client", which is the right choice for general-purpose OAuth 2.0 applications.
 
