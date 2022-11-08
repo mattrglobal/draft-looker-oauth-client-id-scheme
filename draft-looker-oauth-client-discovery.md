@@ -275,9 +275,9 @@ TODO acknowledge.
 
 -00
 
-- Initial version
+* Initial version
 
 -01
 
-- Editorial updates
-- Remove loop back interface and localhost based url's as being a valid client_uri
+* Editorial updates
+* Remove loop back interface and localhost based url's as being a valid client_uri
