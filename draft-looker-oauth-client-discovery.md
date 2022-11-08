@@ -270,14 +270,3 @@ This specification registers the well-known URI defined in [Obtaining Client Met
 {:numbered="false"}
 
 TODO acknowledge.
-
-# Document History
-
--00
-
-* Initial version
-
--01
-
-* Editorial updates
-* Remove loop back interface and localhost based url's as being a valid client_uri
