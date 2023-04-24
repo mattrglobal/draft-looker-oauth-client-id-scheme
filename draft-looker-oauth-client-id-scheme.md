@@ -155,7 +155,7 @@ Content-Type: application/json
 
 The client_uri value returned in the client metadata response MUST be identical to the client_uri value into which the well-known URI string was inserted to create the URL used to retrieve the metadata. If these values are not identical, the data contained in the response MUST NOT be used.
 
-## Authorization Request Using Client ID Scheme
+### Authorization Request
 
 The following is a non-normative example request of a client making an authorization request to an authorization server with the "client_id_scheme" parameter set to "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client":
 
@@ -172,7 +172,7 @@ The value of the "client_id" parameter in the authorization request MUST represe
 
 **TODO stipulate new error responses**
 
-## Token Request Using Client ID Scheme
+### Token Request
 
 The following is a non-normative example request of a client making a token request using the "client_id_scheme" parameter set to "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client":
 
