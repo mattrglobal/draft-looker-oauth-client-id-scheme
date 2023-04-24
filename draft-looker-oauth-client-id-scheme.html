@@ -1185,6 +1185,9 @@ svg :is([fill="white"], [fill^="#fff"]) {
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
                 <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-impersonation-attacks" class="internal xref">Impersonation Attacks</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-server-side-request-forgery" class="internal xref">Server Side Request Forgery (SSRF) Attacks</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
@@ -1459,6 +1462,14 @@ Implementation security considerations can be found in "Recommendations for Secu
 <p id="section-4.2-1">TLS certificate checking <span class="bcp14">MUST</span> be performed by the authorization server, as described in <a href="#tls-requirements" class="auto internal xref">Section 4.1</a>, when making a client metadata request. Checking that the server certificate is valid for the "client_uri" URL prevents man-in-middle and DNS-based attacks. These attacks could cause a authorization server to be tricked into using an attacker's keys and endpoints, which would enable impersonation of the legitimate client.  If an attacker can accomplish this, they can access the resources that the affected client has access to by impersonating their profile.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
 by the authorization server.  To prevent this, the authorization server <span class="bcp14">MUST</span> ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="server-side-request-forgery-ssrf-attacks">
+<section id="section-4.3">
+        <h3 id="name-server-side-request-forgery">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-server-side-request-forgery" class="section-name selfRef">Server Side Request Forgery (SSRF) Attacks</a>
+        </h3>
+<p id="section-4.3-1">Authorization servers resolving metadata of a client and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers should pay attention to the possibility of these URLs using private or loopback based addresses and consider network policies or other measures to prevent making requests to these addresses. Authorization servers should also be aware of the possibility of some URLs featuring non-http based URI schemes which can lead to other possible SSRF attack vectors.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

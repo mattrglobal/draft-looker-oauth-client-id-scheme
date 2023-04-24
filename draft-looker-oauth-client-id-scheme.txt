@@ -75,6 +75,7 @@ Table of Contents
    4.  Security Considerations
      4.1.  TLS Requirements
      4.2.  Impersonation Attacks
+     4.3.  Server Side Request Forgery (SSRF) Attacks
    5.  Compatibility Notes
    6.  IANA Considerations
      6.1.  OAuth Parameters Registry
@@ -428,6 +429,17 @@ Table of Contents
    using as the prefix for the metadata request exactly matches the
    value of the "client_uri" metadata value in the client's metadata
    document received by the authorization server.
+
+4.3.  Server Side Request Forgery (SSRF) Attacks
+
+   Authorization servers resolving metadata of a client and resolving
+   URLs located in the metadata document should be aware of possible
+   SSRF attacks.  Authorization servers should pay attention to the
+   possibility of these URLs using private or loopback based addresses
+   and consider network policies or other measures to prevent making
+   requests to these addresses.  Authorization servers should also be
+   aware of the possibility of some URLs featuring non-http based URI
+   schemes which can lead to other possible SSRF attack vectors.
 
 5.  Compatibility Notes
 
