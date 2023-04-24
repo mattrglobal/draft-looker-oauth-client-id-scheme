@@ -1,17 +1,17 @@
-# OAuth 2.0 Client Discovery
+# OAuth 2.0 Client ID Scheme
 
-This is the working area for the IETF Individual Internet-Draft, "OAuth 2.0 Client Discovery".
+This is the working area for the individual Internet-Draft, "OAuth 2.0 Client ID Scheme".
 
 * [Editor's Copy](https://mattrglobal.github.io/draft-looker-oauth-client-id-scheme/#go.draft-looker-oauth-client-id-scheme.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-looker-oauth-client-id-scheme)
-* [Working Group Draft](https://datatracker.ietf.org/doc/html/draft-looker-oauth-client-id-scheme)
-* [Compare Editor's Copy to Working Group Draft](https://mattrglobal.github.io/draft-looker-oauth-client-id-scheme/#go.draft-looker-oauth-client-id-scheme.diff)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-looker-oauth-client-id-scheme)
+* [Compare Editor's Copy to Individual Draft](https://mattrglobal.github.io/draft-looker-oauth-client-id-scheme/#go.draft-looker-oauth-client-id-scheme.diff)
 
 
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/mattrglobal/draft-looker-oauth-client-id-scheme/blob//CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/mattrglobal/draft-looker-oauth-client-id-scheme/blob/main/CONTRIBUTING.md).
 
 Contributions can be made by creating pull requests.
 The GitHub interface supports creating pull requests using the Edit (✏) button.
