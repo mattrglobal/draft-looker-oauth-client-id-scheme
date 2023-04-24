@@ -1410,8 +1410,9 @@ grant_type=authorization_code
 &amp;client_id_scheme=urn%3Aietf%3Aparams%3Aoauth%3Aclient-id-scheme%3Aoauth-discoverable-client
 </pre><a href="#section-2.3-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.3-3">The "client_id" parameter is passed to the token request during client authentication (<a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</a>). Clients in possession of a client password <span class="bcp14">MAY</span> use the HTTP Basic authentication scheme as defined in RFC 2617 <span>[<a href="#RFC2617" class="cite xref">RFC2617</a>]</span> or <span class="bcp14">MAY</span> include the client credentials in the request-body to authenticate with the authorization server.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
-<p id="section-2.3-4">In case of any errors, error response is returned (<a href="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</a>).<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-3">The "client_id" parameter is passed to the token request during client authentication (<a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.2.1">as described in the Section 3.2.1 of [RFC6749]</a>).<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-4"><strong>TODO stipulate on other possible methods of client authentication</strong><a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-5">In case of any errors, error response is returned (<a href="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">as described in the Section 5.2 of [RFC6749]</a>).<a href="#section-2.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1563,10 +1564,6 @@ by the authorization server.  To prevent this, the authorization server <span cl
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC2617">[RFC2617]</dt>
-      <dd>
-<span class="refAuthor">Franks, J.</span>, <span class="refAuthor">Hallam-Baker, P.</span>, <span class="refAuthor">Hostetler, J.</span>, <span class="refAuthor">Lawrence, S.</span>, <span class="refAuthor">Leach, P.</span>, <span class="refAuthor">Luotonen, A.</span>, and <span class="refAuthor">L. Stewart</span>, <span class="refTitle">"HTTP Authentication: Basic and Digest Access Authentication"</span>, <span class="seriesInfo">RFC 2617</span>, <span class="seriesInfo">DOI 10.17487/RFC2617</span>, <time datetime="1999-06" class="refDate">June 1999</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2617">https://www.rfc-editor.org/rfc/rfc2617</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC3986">[RFC3986]</dt>
       <dd>
