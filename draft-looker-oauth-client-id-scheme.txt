@@ -69,8 +69,8 @@ Table of Contents
      2.1.  OAuth Discoverable Client ID Scheme
        2.1.1.  Client Metadata
        2.1.2.  Obtaining Client Metadata
-     2.2.  Authorization Request Using Client ID Scheme
-     2.3.  Token Request Using Client ID Scheme
+       2.1.3.  Authorization Request
+       2.1.4.  Token Request
    3.  String Operations
    4.  Security Considerations
      4.1.  TLS Requirements
@@ -311,7 +311,7 @@ Table of Contents
    If these values are not identical, the data contained in the response
    MUST NOT be used.
 
-2.2.  Authorization Request Using Client ID Scheme
+2.1.3.  Authorization Request
 
    The following is a non-normative example request of a client making
    an authorization request to an authorization server with the
@@ -334,7 +334,7 @@ Table of Contents
 
    *TODO stipulate new error responses*
 
-2.3.  Token Request Using Client ID Scheme
+2.1.4.  Token Request
 
    The following is a non-normative example request of a client making a
    token request using the "client_id_scheme" parameter set to
