@@ -161,7 +161,7 @@ The following is a non-normative example request of a client making an authoriza
 
 ~~~ http
 GET /authorize?response_type=code
-    &client_id=https%3A%2F%2Fclient.example.com
+    &client_id=a-non-as-assigned-client-id
     &client_id_scheme=urn%3Aietf%3Aparams%3Aoauth%3Aclient-id-scheme%3Aoauth-discoverable-client
     &state=af0ifjsldkj
     &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
@@ -184,7 +184,7 @@ Accept: application/json
 
 grant_type=authorization_code
 &code=xxxxxxxx
-&client_id=https://client.example.com/
+&client_id=a-non-as-assigned-client-id
 &redirect_uri=https://client.example.com/redirect
 &code_verifier=a6128783714cfda1d388e2e98b6ae8221ac31aca31959e59512c59f5
 &client_id_scheme=urn%3Aietf%3Aparams%3Aoauth%3Aclient-id-scheme%3Aoauth-discoverable-client
