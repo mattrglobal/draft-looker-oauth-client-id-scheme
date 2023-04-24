@@ -229,6 +229,10 @@ TLS certificate checking MUST be performed by the authorization server, as descr
 An attacker may also attempt to impersonate a client by publishing a metadata document that contains a "client_uri" claim using the "client_uri" URL of the client being impersonated, but with its own endpoints and signing keys. This would enable it to impersonate that client, if accepted
 by the authorization server.  To prevent this, the authorization server MUST ensure that the "client_uri" URL it is using as the prefix for the metadata request exactly matches the value of the "client_uri" metadata value in the client's metadata document received by the authorization server.
 
+## Server Side Request Forgery (SSRF) Attacks
+
+Authorization servers resolving metadata of a client and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers should pay attention to the possibility of these URLs using private or loopback based addresses and consider network policies or other measures to prevent making requests to these addresses. Authorization servers should also be aware of the possibility of some URLs featuring non-http based URI schemes which can lead to other possible SSRF attack vectors.
+
 # Compatibility Notes
 
 **TODO**
