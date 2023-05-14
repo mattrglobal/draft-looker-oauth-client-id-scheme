@@ -30,7 +30,7 @@ informative:
 
 --- abstract
 
-This specification defines a new extensibility point to OAuth2 which allows clients to identify through different methods to an authorization server using an identifier not assigned by the authorization server. Furthermore, the specification defines one client ID scheme "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client", including the nessary rules around how the authorization server can obtain the endpoint locations and capabilities of the client without the need for a registration process.
+This specification defines a new extensibility point to OAuth 2.0 which allows clients to identify through different methods to an authorization server using an identifier not assigned or managed by the authorization server. Beyond this general extensibility point, the specification defines one client ID scheme "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client", including the nessary rules around how the client makes its metadata available for an authorization server and how an authorization server can obtain this metadata without the need for a registration process.
 
 --- middle
 
@@ -85,7 +85,7 @@ grant_type=authorization_code
 
 The following section defines the the "client_id_scheme" of "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client" including the requirements placed on both the client and authorization server when using this scheme.
 
-In essense when the "client_id_scheme" parameter is present and is set to "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client" in an authorization and or token request, it indicates to the receiving authorization server that the value of the "client_id" parameter in the request is an HTTPS based URL corresponding to the "client_uri" for the client and if the authorization server does not already have the metadata for the identified client, it can retrieve the metadata by following the procedure outlined in [Obtaining Client Metadata](#client-metadata).
+When the "client_id_scheme" parameter is present and is set to "urn:ietf:params:oauth:client-id-scheme:oauth-discoverable-client" in an authorization and or token request, it indicates to the receiving authorization server that the value of the "client_id" parameter in the request is an HTTPS based URL corresponding to the "client_uri" for the client and if the authorization server does not already have the metadata for the identified client, it can retrieve the metadata by following the procedure outlined in [Obtaining Client Metadata](#client-metadata).
 
 ### Client Metadata
 
